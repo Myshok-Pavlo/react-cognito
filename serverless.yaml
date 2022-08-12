@@ -1,0 +1,62 @@
+
+Resources:
+  MyUserpool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        InviteMessageTemplate:
+          EmailMessage: Your username is {username} and temporary password is {####}.
+          EmailSubject: Your temporary password
+          SMSMessage: Your username is {username} and temporary password is {####}.
+        UnusedAccountValidityDays: 7
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: "verified_phone_number"
+            Priority: 1
+      UsernameAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: false
+      UserPoolAddOns:
+        AdvancedSecurityMode: OFF
+      DeviceConfiguration: 
+        ChallengeRequiredOnNewDevice: false
+        DeviceOnlyRememberedOnUserPrompt: false
+      EmailConfiguration:
+        ReplyToEmailAddress: donotreply@domain.tld
+      EmailVerificationMessage: Your verification code is {####}.
+      EmailVerificationSubject: Your verification code
+      EnabledMfas:
+        - SMS_MFA
+      MfaConfiguration: ON
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+      SmsConfiguration:
+          SnsCallerArn: "arn:aws:iam::846636384827:role/service-role/-SMS-Role"
+          SnsRegion: "me-south-1"
+      SmsVerificationMessage: "Your verification code is {####}. "
+      UserAttributeUpdateSettings:  
+        AttributesRequireVerificationBeforeUpdate: 
+          - email
+          - phone_number
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_LINK
+      UserPoolName: ${self:service}-${self:custom.stage}
+  MyCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: ${self:service}-${self:custom.stage}-user-pool-client
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+          ALLOW_CUSTOM_AUTH
+          ALLOW_USER_PASSWORD_AUTH
+          ALLOW_USER_SRP_AUTH
+      UserPoolId:
+         me-south-1_mV8tGo1WA
+      GenerateSecret: false
